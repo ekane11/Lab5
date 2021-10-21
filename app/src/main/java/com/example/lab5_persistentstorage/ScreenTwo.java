@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -23,21 +24,21 @@ public class ScreenTwo extends AppCompatActivity {
 
     TextView textView;
 
-    public static ArrayList<ThirdActivity.Note> notes = new ArrayList<>();
-
+    public static ArrayList<Note> notes = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen_two);
-
+        Log.d("String Two", "onCreate");
         textView = findViewById(R.id.textView);
         Intent intent = getIntent();
         String str = intent.getStringExtra("username");
-        textView.setText("Hello " + str +"!");
+
 
         SharedPreferences sharedPreferences = getSharedPreferences("com.example.lab5_persistentstorage", Context.MODE_PRIVATE);
-        sharedPreferences.getString("username", str);
+        str = sharedPreferences.getString("username", str);
+        textView.setText("Hello " + str +"!");
 
         //get SQLiteDatabase instance
         Context context = getApplicationContext();
@@ -45,25 +46,29 @@ public class ScreenTwo extends AppCompatActivity {
 
         //initiate the "notes" class variable using readNotes method implemented in DBHelper class.
         //Use the username you got from SharedPreferences as a parameter to readNotes method.
+        DBHelper dbHelper = new DBHelper(sqLiteDatabase);
+        notes = dbHelper.readNotes(str);
+        Log.d(str, "print " + notes.size());
 
-
+        Log.d("Screen Two", "OnCreate- after read notes");
         //Create an ArrayList<String> object by iterating over notes object
         ArrayList<String> displayNotes = new ArrayList<>();
-        for(ThirdActivity.Note note : notes){
+        for(Note note : notes){
             displayNotes.add(String.format("Title:%s\nDate:%s", note.getTitle(), note.getDate()));
         }
 
+        //Use listview view to display notes on screen
         ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, displayNotes);
         ListView listView = (ListView) findViewById(R.id.listview);
         listView.setAdapter(adapter);
 
+        //add onItemClickListener for Listview item, a note in our case
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getApplicationContext(), ThirdActivity.class);
 
-
-                intent.putExtra("noteid", view.getId());
+                intent.putExtra("noteid", i);
                 startActivity(intent);
             }
         });
@@ -94,7 +99,4 @@ public class ScreenTwo extends AppCompatActivity {
 
         return true;
     }
-
-
-
 }
