@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Lab5PersistentStorage">
         <activity
+            android:name=".ThirdActivity"
+            android:exported="true" />
+        <activity
             android:name=".ScreenTwo"
             android:exported="true" />
         <activity
